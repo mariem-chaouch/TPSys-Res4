@@ -1,21 +1,23 @@
-SRC = $(wildcard *.c)
-BIN = $(patsubst %.c,%,$(SRC))
+CC = gcc
+CFLAGS = -Wall -Wextra -g -D_FILE_OFFSET_BITS=64
 
-CFLAGS += -Wall -Wextra -g -D_FILE_OFFSET_BITS=64 $(shell pkg-config fuse --cflags)
-LDLIBS += $(shell pkg-config fuse --libs)
-#CFLAGS += --std=c99
+AR = ar
+ARFLAGS = rcs
 
-all: $(BIN)
+all: segclient
 
-%: %.c
-	$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
+my_libseg.o: my_libseg.c segdef.h
+	$(CC) $(CFLAGS) -c my_libseg.c -o my_libseg.o
+
+my_libseg.a: my_libseg.o
+	$(AR) $(ARFLAGS) my_libseg.a my_libseg.o
+
+segclient: segclient.c segdef.h my_libseg.a
+	$(CC) $(CFLAGS) segclient.c my_libseg.a -o segclient
+
+.INTERMEDIATE: my_libseg.o
 
 clean:
-	rm -f $(BIN)
-	rm -f *.o
-	rm -f *~
+	rm -f segclient my_libseg.o my_libseg.a
 
-indent:
-	indent -linux -i4 -nut -ts2 *.c
-
-.PHONY: all clean indent
+.PHONY: all run clean
