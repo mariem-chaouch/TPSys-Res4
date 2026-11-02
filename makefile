@@ -3,6 +3,7 @@ BIN = $(patsubst %.c,%,$(SRC))
 
 CFLAGS += -Wall -Wextra -g -D_FILE_OFFSET_BITS=64 $(shell pkg-config fuse --cflags)
 LDLIBS += $(shell pkg-config fuse --libs)
+LDLIBS += ./libseg.a
 #CFLAGS += --std=c99
 
 all: $(BIN)
